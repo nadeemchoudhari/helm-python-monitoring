@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: {{ .Values.namespace }}
+  name: {{ .Values.deployment.name }}
+  labels:
+    {{ .Values.deployment.labels.name }}: {{ .Values.deployment.labels.value }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{ .Values.deployment.labels.name }}: {{ .Values.deployment.labels.value }}
+  template:
+    metadata:
+      labels:
+        {{ .Values.deployment.labels.name }}: {{ .Values.deployment.labels.value }}
+    spec:
+      
+      serviceAccountName: {{ .Values.serviceaccount.name }}
+      securityContext:
+           runAsUser: {{ .Values.podsecuritycontext.runAsUser }}
+      containers:
+        - name: {{ .Values.image.web.containername }}
+          image: {{ .Values.image.web.name }}
+          volumeMounts:
+            - name: {{ .Values.volumemounts.name }}
+              mountPath: {{ .Values.volumemounts.mountPath }}
+          ports:
+             - containerPort: {{ .Values.image.web.containerport }}
+        - name: {{ .Values.image.app.containername }}
+          image: {{ .Values.image.app.name }}
+          volumeMounts:
+            - name: {{ .Values.volumemounts.name }}
+              mountPath: {{ .Values.volumemounts.mountPath }}
+          env:
+          - name: {{ .Values.env.name}}
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.env.secretname }}
+                key: {{ .Values.env.key }}
+      volumes:
+      - name: {{ .Values.volumes.name }}
+        hostPath:
+          path: {{ .Values.volumes.path }}           
+              
+      
