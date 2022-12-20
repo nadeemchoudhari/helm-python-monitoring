@@ -1,0 +1,65 @@
+# Default values for demochart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+
+replicaCount: 1
+
+namespace: monitoring
+env:
+    name: TOKEN
+    secretname: serviceaccount-sa-token
+    key: token
+
+image:
+    web:
+      name: nach1116/python-web-server:v1
+      containerport: 8000
+      containername:  web-server
+
+    app:
+      name: nach1116/python-app:v1
+      containername: python-app
+
+podsecuritycontext:     
+      runAsUser: 0
+
+volumemounts:
+    name: html
+    mountPath: /web/html           
+
+
+deployment:
+     name:  monitoring
+     labels:
+       name: app
+       value: python3
+
+volumes:
+  name: html
+  path: /mnt/c/web/html
+
+
+
+service:
+  name: pod-usage-service
+  labels:
+    name: app
+    value: python3
+  port: 8080
+  protocol: TCP
+  targetPort: 8000
+  type: LoadBalancer
+
+serviceaccount:
+  name: serviceaccount-sa
+ 
+
+secret:
+  name: serviceaccount-sa-token
+  annotations: serviceaccount-sa
+  type: kubernetes.io/service-account-token
+
+
+
+
